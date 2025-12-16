@@ -32,7 +32,7 @@ public class LeituraDaEntradaCsv {
             DateTimeFormatter formatador =
                     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-            cliente.dataEntrada = LocalDateTime.parse(dados[3], formatador);
+            cliente.dataEntrada = String.valueOf(LocalDateTime.parse(dados[3], formatador));
 
             return cliente;
 
