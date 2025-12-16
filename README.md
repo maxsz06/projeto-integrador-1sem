@@ -1,6 +1,6 @@
-﻿# projeto-integrador-1sem
+📖 Descrição do Projeto
 
-## Figma BackEnd: https://www.figma.com/design/zjwIbVkbjDgiuqKnrG5GLU/BackEnd-Prototipo?node-id=0-1&t=bV83vHwTP7iOCYCE-1
+Este projeto integrador tem como objetivo aplicar, de forma prática, os conhecimentos adquiridos no curso de Análise e Desenvolvimento de Sistemas, envolvendo lógica de programação, orientação a objetos, versionamento com Git e organização em camadas.
 
-## Casos de uso: https://lucid.app/lucidchart/8e4c8004-1f40-4815-a768-7ba9f141a1b7/edit?viewport_loc=-326%2C-743%2C2723%2C1279%2C0_0&invitationId=inv_08938555-b905-47b0-acbb-e311f90f185e
+O sistema foi desenvolvido em Java, seguindo boas práticas de organização de código, separação de responsabilidades e estrutura de diretórios.
 
