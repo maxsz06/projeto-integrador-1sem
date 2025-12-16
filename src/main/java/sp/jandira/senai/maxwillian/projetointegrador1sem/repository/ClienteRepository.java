@@ -12,7 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,18 +28,16 @@ public class ClienteRepository {
 
     public void gravarCliente(DadosDoCliente cliente) {
 
-        LocalDateTime horaAtual = LocalDateTime.now();
-        DateTimeFormatter formator = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        String horaEntrada = horaAtual.format(formator);
+        LocalDate dataAtual = LocalDate.now();
+        LocalTime horaAtual = LocalTime.now();
+        String dataEntrada = dataAtual.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        String horaEntrada = horaAtual.format(DateTimeFormatter.ofPattern("HH:mm"));
 
-        LocalDateTime horaSaidaAtual = LocalDateTime.now();
-        String horaSaida = horaSaidaAtual.format(formator);
-
-        Path arquivoEntrada= Paths.get("Historico_entrada.csv");
-        Path arquivoSaida= Paths.get("Historico_saida.csv");
+        Path arquivoEntrada= Paths.get("D:\\dadosDosClientes\\historicoDeEntrada.csv");
+        Path arquivoSaida= Paths.get("D:\\dadosDosClientes\\historicoDeSaida.csv");
         try{
-            Files.writeString(arquivoEntrada, cliente.nome+ ";" + cliente.carro + ";" + cliente.placa + ";" + horaEntrada + "\n", StandardOpenOption.APPEND);
-            Files.writeString(arquivoSaida, cliente.nome+ ";" + cliente.carro + ";" + cliente.placa + ";" + horaEntrada + "\n", StandardOpenOption.APPEND);
+            Files.writeString(arquivoEntrada, cliente.nome+ ";" + cliente.carro + ";" + cliente.placa + ";" + dataEntrada + ";" + horaEntrada + "\n", StandardOpenOption.APPEND);
+            Files.writeString(arquivoSaida, cliente.nome+ ";" + cliente.carro + ";" + cliente.placa + ";" + dataEntrada + ";" + horaEntrada +  "\n", StandardOpenOption.APPEND);
         }catch (IOException e){
             System.out.println("Erro ao criar o arquivo");
             System.out.println(e.getMessage());
@@ -62,7 +62,7 @@ public class ClienteRepository {
         List<String> linhasParaManter = new ArrayList<>();
         boolean registroEncontrado = false;
 
-        try (BufferedReader br = new BufferedReader(new FileReader("Historico_entrada.csv"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("historicoDeEntrada.csv"))) {
 
             String linha;
 
@@ -102,7 +102,7 @@ public class ClienteRepository {
         }
 
         // 3. Sobrescrever o arquivo original
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("Historico_entrada.csv"))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("historicoDeEntrada.csv"))) {
             for (String linha : linhasParaManter) {
                 bw.write(linha);
                 bw.newLine(); // Adiciona uma nova linha após cada registro
