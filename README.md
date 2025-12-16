@@ -12,3 +12,6 @@ BackEnd Figma
 Lucid BackEnd 
 <img width="1087" height="728" alt="image" src="https://github.com/user-attachments/assets/f0dc2d2c-dc66-4107-ac73-ed370df3475d" />
 
+##Planilha de requisitos
+[ProjetoIntegrador-Matriz de rastreabilidade.pdf](https://github.com/user-attachments/files/24198899/ProjetoIntegrador-Matriz.de.rastreabilidade.pdf)
+[ProjetoIntegrador-Matriz de rastreabilidade.pdf](https://github.com/user-attachments/files/24198899/ProjetoIntegrador-Matriz.de.rastreabilidade.pdf)
