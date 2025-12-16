@@ -38,10 +38,6 @@ public class TelaPrincipal extends Application {
 
 
 
-
-
-
-
             VBox root = new VBox();              //Criando o Vbox (Alinhamento dos itens na vertical)
             Scene scene = new Scene(root);       //Criando a cena que recebe como parametro o root
             root.setStyle("-fx-background-color: #F0D49B;");  //Cor de fundo do root (Próximo de um laranja)
