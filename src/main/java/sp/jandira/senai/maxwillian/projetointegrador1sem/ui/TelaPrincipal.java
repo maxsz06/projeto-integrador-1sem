@@ -1,13 +1,18 @@
 package sp.jandira.senai.maxwillian.projetointegrador1sem.ui;
-import javafx.application.Platform;
-import javafx.scene.control.*;
-import sp.jandira.senai.maxwillian.projetointegrador1sem.repository.ClienteReposytory;
 
+import sp.jandira.senai.maxwillian.projetointegrador1sem.ui.RegistrarEntrada;
+import sp.jandira.senai.maxwillian.projetointegrador1sem.repository.ClienteRepository;
+import sp.jandira.senai.maxwillian.projetointegrador1sem.ui.Pagamentos;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -16,241 +21,203 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
+
 
 public class TelaPrincipal extends Application {
 
     @Override
-
     public void start(Stage stage) throws IOException {
-        Path arquivo = Paths.get("/Users/25203648/Arquivos/projetointegrador.csv");
 
-        TextField nomeUser;   //Variavel para guardar o nome do usuario de forma global do arquivo (como os subsequentes)
-        TextField veiculoCliente;
-        TextField placaCliente;
-        public String nome;
-        public String placa;
-        public String carro;
+        //Definir o tamanho da tela
+        stage.setWidth(1440);
+        stage.setHeight(1024);
 
+        //Controlando o fechamento ao clicar no fechar da janela
+        stage.setOnCloseRequest(click -> {
+            fechar();
+            click.consume();
+        });
 
+        //bloquear o redimensionamento
+        stage.setResizable(false);
 
-            VBox root = new VBox();              //Criando o Vbox (Alinhamento dos itens na vertical)
-            Scene scene = new Scene(root);       //Criando a cena que recebe como parametro o root
-            root.setStyle("-fx-background-color: #F0D49B;");  //Cor de fundo do root (Próximo de um laranja)
+        VBox root = new VBox();              //Criando o Vbox (Alinhamento dos itens na vertical)
+        Scene scene = new Scene(root);       //Criando a cena que recebe como parametro o root
+        root.setStyle("-fx-background-color: #F0D49B;");  //Cor de fundo do root (Próximo de um laranja)
 
+        //Configurar o header da tela
+        VBox header = new VBox();
+        header.setStyle("-fx-padding: 10;-fx-background-color: #F7F7F2");
+        Label titulo = new Label("Gerenciamento de estacionamento");
+        titulo.setStyle("-fx-text-fill: black;-fx-font-size: 30;-fx-font-weight: bold;");
+        titulo.setAlignment(Pos.CENTER);         //Alinhar o header no centro
+        titulo.setMaxWidth(Double.MAX_VALUE);    //Necessário determinar a largura do header para o alinhamento
+        header.getChildren().add(titulo);
 
-            //Definir o tamanho da tela
-            stage.setWidth(1440);
-            stage.setHeight(1024);
+        //Configurar o main
+        VBox listaDeVeiculos = new VBox();
+        listaDeVeiculos.setStyle("-fx-padding: 10; -fx-background-color: #BDE7DF");
 
-            //Controlando o fechamento ao clicar no fechar da janela
-            stage.setOnCloseRequest(click -> {
-                fechar();
-                click.consume();
-            });
+        //Determinando o tamanho da Vbox listaDeVeículos
+        listaDeVeiculos.setPrefWidth(1440);
+        listaDeVeiculos.setPrefHeight(1024);
 
-
-            //bloquear o redimensionamento
-            stage.setResizable(false);
-
-            //Configurar o header da tela
-            VBox header = new VBox();
-            header.setStyle("-fx-padding: 40;-fx-background-color: #f0d49b");
-            Label titulo = new Label("Cadastro de Veículo");
-            titulo.setStyle("-fx-text-fill: black;-fx-font-size: 40;-fx-font-weight: bold;");
-            titulo.setAlignment(Pos.TOP_LEFT);         //Alinhar o header no centro
-            titulo.setMaxWidth(Double.MAX_VALUE);    //Necessário determinar a largura do header para o alinhamento
-            header.getChildren().add(titulo);
-
-
-            //Configurar o main
-            VBox main = new VBox();
-            //main.setStyle("-fx-background-color: #ffffff");
-            main.setPrefHeight(700);
-            main.setPrefWidth(200);
-
-            //Adicionando os intens
-
-            main.setSpacing(10);
-            //Criando a Hbox do nome do usuário
-            HBox nameUser = new HBox();
-            Label labelnome = new Label("Digite seu Nome: ");
-
-            nomeUser = new TextField();
-
-            HBox modeloVeiculo = new HBox();
-            Label veiculo = new Label("Modelo do veículo: ");
+        //Criar o header da Vbox lista de veiculos
+        VBox headerListaDeVeiculos = new VBox();
+        headerListaDeVeiculos.setStyle("-fx-padding: 10;-fx-background-color: #E6F2F5");
+        Label tituloListaDeVeiculos = new Label("Lista de veículos");
+        tituloListaDeVeiculos.setStyle("-fx-text-fill: black;-fx-font-size: 30;-fx-font-weight: bold");
+        tituloListaDeVeiculos.setAlignment(Pos.CENTER);
+        tituloListaDeVeiculos.setMaxWidth(Double.MAX_VALUE);
+        headerListaDeVeiculos.getChildren().add(tituloListaDeVeiculos);
 
 
-            veiculoCliente = new TextField();
-            modeloVeiculo.getChildren().addAll(veiculo, veiculoCliente);
-
-            HBox placaDoVeiculo = new HBox();
-            Label placa = new Label("Placa do Veículo: ");
+        // Criar o tableview para visualizar o nome, modelo, placa, hora de entrada
 
 
-            placaCliente = new TextField();
-            placaDoVeiculo.getChildren().addAll(placa, placaCliente);
 
-            HBox classeTempo = new HBox();
+        VBox vboxDosBotoes = new VBox();
 
-            // Pegando o timestamp atual formatado
-            String dataInicial = LocalDateTime.now()
-                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-            // Criando o Label com o timestamp
-            Label horario = new Label(dataInicial);
-            // Adicionando o Label ao HBox
-            classeTempo.getChildren().add(horario);
+        //Determinando o tamanho da Vbox vboxDosBotoes
+        vboxDosBotoes.setPrefWidth(1440);
+        vboxDosBotoes.setPrefHeight(512);
+        vboxDosBotoes.setAlignment(Pos.CENTER_RIGHT);    //Alinhar itens da vboxDosBotoes ao centro e a direita
+        vboxDosBotoes.setPadding(new Insets(20));
 
-            //Alterando o estilo do texto
+        //Criar Hbox para alinhar a Vbox listaDeVeiculos e vboxDosBotoes na horizontal
+        HBox main = new HBox();
+        main.getChildren().addAll(listaDeVeiculos, vboxDosBotoes);
 
-            classeTempo.setStyle("-fx-background-color: red;");
-            classeTempo.setAlignment(Pos.CENTER);
-            classeTempo.setStyle("-fx-font-size: 15");
-
-
-            //Configurando o layout da Hbox do nome do usuário
-
-            nameUser.setStyle("-fx-spacing: 40; -fx-font-size: 20");
-            modeloVeiculo.setStyle("-fx-spacing: 25; -fx-font-size: 20");
-            placaDoVeiculo.setStyle("-fx-spacing: 45; -fx-font-size: 20");
+        //Criar os botoes
+        VBox boxbotaoSair = new VBox();
+        boxbotaoSair.setPrefWidth(1440);
+        boxbotaoSair.setPrefHeight(512);
+        boxbotaoSair.setAlignment(Pos.BOTTOM_RIGHT);    //Alinhar os filhos da Vbox boxbotaoSair ao canto inferior direito
+        boxbotaoSair.setPadding(new Insets(10));
 
 
-            nameUser.getChildren().addAll(labelnome, nomeUser);
+        //Botao de cadastro
+        Button cadastrar = new Button("Cadastro de veículos");
 
-            main.getChildren().addAll(nameUser, modeloVeiculo, placaDoVeiculo, classeTempo);
-            main.setPadding(new Insets(150, 400, 200, 400));
-            main.setSpacing(30);
+        //Configurando o botao cadastrar
+        cadastrar.setPrefWidth(200);
+        cadastrar.setPrefHeight(100);
+        cadastrar.setFont(Font.font("arial", 16));
 
+        //Configurando o layout do botao cadastrar
+        DropShadow shadow = new DropShadow();    //Adiciona uma sombra por traz do objeto ao passar o mouse
+        shadow.setRadius(8);                     //Tamanho da sombra
+        cadastrar.setStyle("-fx-background-color: #93E681; -fx-text-fill: black; -fx-background-radius: 12;");
 
-            // FOOTER
+        cadastrar.setOnMouseEntered(passarMouse -> cadastrar.setEffect(shadow));       //Aplica o efeito Shadow quando passa o mouse
+        cadastrar.setOnMouseExited(mouseJaPassou -> cadastrar.setEffect(null));        //Retira o efeito Shadow quando o mouse ja passou
 
-            HBox footer = new HBox();
-            // footer.setStyle("-fx-background-color: #ffffff");
-            footer.setPrefHeight(300);
-            footer.setPrefWidth(200);
+        cadastrar.setOnMousePressed(clickIn -> {
+            cadastrar.setScaleX(0.92);      //Reduz o tamanho do botao ao clicar no mesmo, ocasionando um efeito visual
+            cadastrar.setScaleY(0.92);
+        });
 
-            //Botao para fechar o sistema
-            Button confirmar = new Button("Confirmar");
+        cadastrar.setOnMouseReleased(clickOut -> {
+            cadastrar.setScaleX(1);        //O tamanho volta ao normal após o clickOut do mouse
+            cadastrar.setScaleY(1);
+        });
 
-            confirmar.setOnAction(actionEvent -> registrarEntrada());
-
-            //Configurando o botao confirmar
-            confirmar.setPrefWidth(200);
-            confirmar.setPrefHeight(100);
-            confirmar.setFont(Font.font("arial", 16));
-
-            //Configurando o layout do botao confirmar
-            DropShadow shadow3 = new DropShadow();
-            shadow3.setRadius(8);
-            confirmar.setStyle("-fx-background-color: #93E681; -fx-text-fill: black; -fx-background-radius: 12;");
-            confirmar.setOnMouseEntered(passarMouse -> confirmar.setEffect(shadow3));
-            confirmar.setOnMouseExited(mouseJaPassou -> confirmar.setEffect(null));
-            confirmar.setOnMousePressed(clickIn -> {
-                confirmar.setScaleX(0.92);
-                confirmar.setScaleY(0.92);
-            });
-            confirmar.setOnMouseReleased(clickOut -> {
-                confirmar.setScaleX(1);
-                confirmar.setScaleY(1);
-            });
-
-            footer.setAlignment(Pos.CENTER);
-            footer.setSpacing(20
-            );
-//Botao para fechar o sistema
-            Button voltar = new Button("Voltar");
-
-            //Configurando o botao voltar
-            voltar.setPrefWidth(200);
-            voltar.setPrefHeight(100);
-            voltar.setFont(Font.font("arial", 16));
-
-            //Configurando o layout do botao voltar
-            DropShadow shadow5 = new DropShadow();
-            shadow5.setRadius(8);
-            voltar.setStyle("-fx-background-color: FF8989; -fx-text-fill: black; -fx-background-radius: 12;");
-            voltar.setOnMouseEntered(passarMouse -> voltar.setEffect(shadow3));
-            voltar.setOnMouseExited(mouseJaPassou -> voltar.setEffect(null));
-            voltar.setOnMousePressed(clickIn -> {
-                voltar.setScaleX(0.92);
-                voltar.setScaleY(0.92);
-            });
-            voltar.setOnMouseReleased(clickOut -> {
-                voltar.setScaleX(1);
-                voltar.setScaleY(1);
-            });
+        cadastrar.setOnAction(click -> {
+            //Chamar a classe para cadastro
+            RegistrarEntrada registrarEntrada = new RegistrarEntrada();
+            Scene novoEntrada = new Scene(registrarEntrada,1440,1024);
+            Stage stageExistente = (Stage) cadastrar.getScene().getWindow();
+            stageExistente.setScene(novoEntrada);
+        });
 
 
-            String nomeUsuario = labelnome.getText();
+        //Botao de registro de saida/pagamento
+        Button registrarSaida = new Button("Saída/Pagamento");
 
-            footer.getChildren().addAll(confirmar, voltar);
-            root.getChildren().addAll(header, main, footer);
+        //Configurando o botao registrarSaida
+        registrarSaida.setPrefWidth(200);
+        registrarSaida.setPrefHeight(100);
+        registrarSaida.setFont(Font.font("arial", 16));
 
-            stage.setTitle("Estacionamento");
-            stage.setScene(scene);
-            stage.show();
-        }
+        //Configurando o layout do botao  Saida/Pagamento
+        DropShadow shadow2 = new DropShadow();
+        shadow2.setRadius(8);
+        registrarSaida.setStyle("-fx-background-color: #83FFEE;  -fx-text-fill: black; -fx-background-radius: 12;");
+        registrarSaida.setOnMouseEntered(passarMouse -> registrarSaida.setEffect(shadow2));
+        registrarSaida.setOnMouseExited(mouseJaPassou -> registrarSaida.setEffect(null));
+        registrarSaida.setOnMousePressed(clickIn -> {
+            registrarSaida.setScaleX(0.92);
+            registrarSaida.setScaleY(0.92);
+        });
+        registrarSaida.setOnMouseReleased(clickOut -> {
+            registrarSaida.setScaleX(1);
+            registrarSaida.setScaleY(1);
+        });
+        registrarSaida.setOnAction(click -> {
+            System.out.println("Nova tela para confirmar o pagamento e a saída");
+
+            //Chamar a classe com o algoritmo da lógica e configuração da tela
+            Pagamentos telaDePagamento = new Pagamentos();    //Criando o objeto para chamar a classe Pagamentos
+            Scene novaCenaEntrada = new Scene(telaDePagamento, 1440, 1024);    //Configurando a nova cena com os parâmetros da classe pagamentos
+            Stage stageExistente = (Stage) registrarSaida.getScene().getWindow();    //Utilizando o palco existente dando como parâmetros ao clicar no registrar
+            //saída para pegar a cena e a janela
+            stageExistente.setScene(novaCenaEntrada);    // Trocar a cena exibida na janela
+        });
+
+        //Botao para fechar o sistema
+        Button sair = new Button("Sair");
+
+        //Configurando o botao sair
+        sair.setPrefWidth(200);
+        sair.setPrefHeight(100);
+        sair.setFont(Font.font("arial", 16));
+
+        //Configurando o layout do botao sair
+        DropShadow shadow3 = new DropShadow();
+        shadow3.setRadius(8);
+        sair.setStyle("-fx-background-color: FF8989; -fx-text-fill: black; -fx-background-radius: 12;");
+        sair.setOnMouseEntered(passarMouse -> sair.setEffect(shadow3));
+        sair.setOnMouseExited(mouseJaPassou -> sair.setEffect(null));
+        sair.setOnMousePressed(clickIn -> {
+            sair.setScaleX(0.92);
+            sair.setScaleY(0.92);
+        });
+        sair.setOnMouseReleased(clickOut -> {
+            sair.setScaleX(1);
+            sair.setScaleY(1);
+        });
+        sair.setOnAction(click -> {
+            System.out.println("Nova tela para sair");
+            //Chamar função com o algoritmo da lógica
+            fechar();
+        });
+
+        //Adicionando os filhos nas box
+        boxbotaoSair.getChildren().add(sair);
+        vboxDosBotoes.getChildren().addAll(cadastrar, registrarSaida, boxbotaoSair);    //Adicionando os botoes na vBoxDosBotoes
+        vboxDosBotoes.setSpacing(50);
+        root.getChildren().addAll(header, main);
+        listaDeVeiculos.getChildren().addAll(headerListaDeVeiculos);
+
+
+        stage.setTitle("Estacionamento");
+        stage.setScene(scene);
+        stage.show();
+    }
+
     //Configurando funções dos botões
-    public void fechar() {
+    public void fechar(){
         Alert alertaFechar = new Alert(
-                Alert.AlertType.CONFIRMATION, "Tem certeza que deseja voltar?",
+                Alert.AlertType.CONFIRMATION, "Tem certeza que deseja sair?",
                 ButtonType.YES,
                 ButtonType.NO
         );
         Optional<ButtonType> resposta = alertaFechar.showAndWait();
-        if (resposta.isPresent() && resposta.get() == ButtonType.YES) {
+        if (resposta.isPresent() && resposta.get() == ButtonType.YES){
             Platform.exit();
-
-
         }
-    }
-
-    public void registrarEntrada() {
-
-        String placa= placaCliente.getText().trim().toUpperCase();
-
-        //Campo vazio
-
-        if (placa.isEmpty()){
-
-            System.out.println("Placa Obrigatoria");
-            return;
-
-        }
-
-        //Formato da Placa
-
-        boolean placaAntiga = placa.matches("[A-Z]{3}[0-9]{4}");
-        boolean placaMercosul = placa.matches("[A-Z]{3}[0-9][A-Z][0-9]{2}");
-
-        if (!placaAntiga && !placaMercosul) {
-            System.out.println("Placa Invalida");
-            return;
-        }
-
-        if (clienteRepository.placaJaExiste(placa)) {
-
-            System.out.println("Placa Ja Existe");
-            return;
-
-        }
-
-        // Gravar dados
-
-        cliente.carro = veiculoCliente.getText();
-        cliente.nome = nomeUser.getText();
-        cliente.placa = placaCliente.getText();
-
-        clienteRepository.gravarCliente(cliente);
-
-        System.out.println("Cliente carregado com sucesso");
-
-    }
-
     }
 }
+

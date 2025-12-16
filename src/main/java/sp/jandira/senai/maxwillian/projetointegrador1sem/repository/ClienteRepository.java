@@ -1,10 +1,10 @@
-package br.senai.sp.jandira.projetointegradorbackendestacionamento.repository;
+package sp.jandira.senai.maxwillian.projetointegrador1sem.repository;
 
 
+import sp.jandira.senai.maxwillian.projetointegrador1sem.ui.RegistrarEntrada;
 
-import br.senai.sp.jandira.projetointegradorbackendestacionamento.model.DadosDoCliente;
-import br.senai.sp.jandira.projetointegradorbackendestacionamento.ui.RegistrarEntrada;
 import javafx.scene.control.TextField;
+import sp.jandira.senai.maxwillian.projetointegrador1sem.model.DadosDoCliente;
 
 
 import java.io.*;
@@ -18,7 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
 public class ClienteRepository {
+
+
+
 
     public void gravarCliente(DadosDoCliente cliente) {
 
@@ -111,7 +115,6 @@ public class ClienteRepository {
         }
     }
 }
-
 
 
 

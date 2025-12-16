@@ -1,122 +1,65 @@
 package sp.jandira.senai.maxwillian.projetointegrador1sem.repository;
 
-import javafx.scene.control.TextField;
+import sp.jandira.senai.maxwillian.projetointegrador1sem.ui.Pagamentos;
+import sp.jandira.senai.maxwillian.projetointegrador1sem.ui.RegistrarEntrada;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.NumberFormat;
+import java.util.Locale;
 
+// Certifique-se de que esta classe está importando RegistrarEntrada e Pagamentos corretamente
 public class CalculoTempo {
 
-    import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+    // --- Constantes de Tarifa (Definidas em um local central) ---
+    private static final double TARIFA_PRIMEIRA_HORA = 10.00;
+    private static final double TARIFA_HORA_SUBSEQUENTE = 5.00;
+    private static final int REGRA_ARREDONDAMENTO_MINUTOS = 5;
 
-import static br.senai.sp.jandira.projetointegradorbackendestacionamento.ui.RegistrarEntrada.dataEntrada;
+    public static double calcularCustoTotal() {
 
+        // 1. Obter a Duração
+        Duration duracao = Duration.between(
+                RegistrarEntrada.dataEntrada,
+                Pagamentos.dataSaida
+        );
+        long totalMinutos = duracao.toMinutes();
 
-    public class ClienteRepository {
-
-        public void gravarCliente(DadosDoCliente cliente) {
-
-            LocalDateTime horaAtual = LocalDateTime.now();
-            DateTimeFormatter formator = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            String horaEntrada = horaAtual.format(formator);
-
-            LocalDateTime horaSaidaAtual = LocalDateTime.now();
-            String horaSaida = horaSaidaAtual.format(formator);
-
-            Path arquivoEntrada= Paths.get("Historico_entrada.csv");
-            Path arquivoSaida= Paths.get("Historico_saida.csv");
-            try{
-                Files.writeString(arquivoEntrada, cliente.nome+ ";" + cliente.carro + ";" + cliente.placa + ";" + horaEntrada + "\n", StandardOpenOption.APPEND);
-                Files.writeString(arquivoSaida, cliente.nome+ ";" + cliente.carro + ";" + cliente.placa + ";" + horaEntrada + "\n", StandardOpenOption.APPEND);
-            }catch (IOException e){
-                System.out.println("Erro ao criar o arquivo");
-                System.out.println(e.getMessage());
-            }
+        if (totalMinutos <= 60) {
+            return 0.0;
         }
 
-        public void receberDados (TextField nomeUser, TextField placaCliente, TextField veiculoCliente) {
+        // 2. Cobrança da Primeira Hora
+        double custoTotal = TARIFA_PRIMEIRA_HORA;
+        long minutosExcedentes = totalMinutos - 60;
 
-            RegistrarEntrada registrarEntrada =  new RegistrarEntrada();
-            DadosDoCliente cliente = new DadosDoCliente();
-
-            cliente.nome = nomeUser.getText();
-            cliente.placa = placaCliente.getText();
-            cliente.carro = veiculoCliente.getText();
-
-
-            gravarCliente(cliente);
+        if (minutosExcedentes <= 0) {
+            return custoTotal;
         }
 
-        public boolean excluirRegistroPorPlaca(String placaVeiculo) {
+        // 3. Cálculo das Horas Subsequentes com Arredondamento
+        long horasCompletas = minutosExcedentes / 60;
+        long minutosResiduais = minutosExcedentes % 60;
 
-            List<String> linhasParaManter = new ArrayList<>();
-            boolean registroEncontrado = false;
+        long horasSubsequentesPagas = horasCompletas;
 
-            try (BufferedReader br = new BufferedReader(new FileReader("Historico_entrada.csv"))) {
-
-                String linha;
-
-                // 1. Ler o arquivo, linha por linha
-                while ((linha = br.readLine()) != null) {
-
-                    // Supondo que a PLACA é o PRIMEIRO campo (índice 0)
-                    String[] colunas = linha.split(";"); // Use o delimitador correto do seu CSV!
-
-                    if (colunas.length > 0) {
-                        String placaDoRegistro = colunas[0].trim();
-
-                        // 2. Comparar a placa e decidir se a linha deve ser mantida
-                        if (placaDoRegistro.equalsIgnoreCase(placaVeiculo.trim())) {
-                            // Esta é a linha a ser excluída, então NÃO a adicionamos à lista
-                            registroEncontrado = true;
-                        } else {
-                            // Linha a ser mantida
-                            linhasParaManter.add(linha);
-                        }
-                    } else {
-                        // Manter linhas vazias ou mal formatadas, se necessário.
-                        linhasParaManter.add(linha);
-                    }
-                }
-
-            } catch (IOException e) {
-                System.err.println("Erro ao ler o arquivo CSV: " + e.getMessage());
-                return false;
-            }
-
-            // Se o registro não foi encontrado, não há o que excluir
-            if (!registroEncontrado) {
-                System.out.println("Aviso: Registro com a placa " + placaVeiculo + " não encontrado.");
-                // Retorna true se você considerar que a "exclusão" foi bem-sucedida porque o item não existe mais
-                return true;
-            }
-
-            // 3. Sobrescrever o arquivo original
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter("Historico_entrada.csv"))) {
-                for (String linha : linhasParaManter) {
-                    bw.write(linha);
-                    bw.newLine(); // Adiciona uma nova linha após cada registro
-                }
-                return true; // Exclusão bem-sucedida
-
-            } catch (IOException e) {
-                System.err.println("Erro ao escrever (sobrescrever) o arquivo CSV: " + e.getMessage());
-                return false;
-            }
+        // Regra de Arredondamento: >= 5 minutos extras paga 1 hora inteira
+        if (minutosResiduais >= REGRA_ARREDONDAMENTO_MINUTOS) {
+            horasSubsequentesPagas += 1;
         }
+
+        // 4. Custo Final
+        custoTotal += horasSubsequentesPagas * TARIFA_HORA_SUBSEQUENTE;
+
+        return custoTotal;
+    }
+
+    // Mantendo sua função original para exibir a duração (se for útil)
+    public static String formatarDuracao() {
+        Duration duracao = Duration.between(RegistrarEntrada.dataEntrada, Pagamentos.dataSaida);
+        long minutos = duracao.toMinutes();
+        long horas = minutos / 60;
+        long restoMinutos = minutos % 60;
+        return horas + "h " + restoMinutos + "min";
+    }
 }
