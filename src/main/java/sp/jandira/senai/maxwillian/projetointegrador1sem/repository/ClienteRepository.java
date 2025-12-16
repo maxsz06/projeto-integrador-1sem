@@ -44,9 +44,9 @@ public class ClienteRepository {
         }
     }
 
-    private final Path arquivo = Paths.get("D:\\dadosDosClientes\\dados.csv");
-    private final String separador = ";"; // O separador do seu CSV
-    public List<DadosDoCliente> listarTodos() {
+    private static final Path arquivo = Paths.get("D:\\dadosDosClientes\\historicoDeEntrada.csv");
+    private static final String separador = ";"; // O separador do seu CSV
+    public static List<DadosDoCliente> listarTodos() {
         List<DadosDoCliente> clientes = new ArrayList<>();
 
         try {
