@@ -130,7 +130,24 @@ public class RegistrarEntrada extends VBox {
         //Botao para fechar o sistema
         Button confirmar = new Button("Confirmar");
 
-        confirmar.setOnAction(actionEvent -> registrarEntrada());
+        confirmar.setOnAction(actionEvent ->
+        {
+                registrarEntrada();
+                try {
+                    // Criar nova cena da TelaPrincipal
+                    TelaPrincipal telaPrincipal = new TelaPrincipal();
+
+                    Stage stageAtual = (Stage) confirmar.getScene().getWindow();
+
+                    // Chamar o start() da tela principal novamente no mesmo Stage
+                    telaPrincipal.start(stageAtual);
+
+                }
+                //Informar se irá ocorrer algum durante a execução do código dentro do try
+                catch (Exception ex) {       //Guardar o erro dentro da variável ex
+                    ex.printStackTrace();    //Imprimir o erro no console
+                }
+        });
 
         //Configurando o botao confirmar
         confirmar.setPrefWidth(200);
