@@ -15,13 +15,13 @@ import java.util.List;
 
 public class ClienteRepository {
 
-    private static final Path ARQUIVO_ENTRADA = Paths.get("Historico_entrada.csv");
-    private static final String SEPARADOR = ";";
+    private static final Path arquivoEntrada = Paths.get("Historico_entrada.csv");
+    private static final String separador = ";";
 
-    private static final DateTimeFormatter FORMATADOR_DATA =
+    private static final DateTimeFormatter formatarData =
             DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    private static final DateTimeFormatter FORMATADOR_HORA =
+    private static final DateTimeFormatter formatarHora =
             DateTimeFormatter.ofPattern("HH:mm");
 
     // ================== GRAVAR CLIENTE ==================
@@ -30,16 +30,16 @@ public class ClienteRepository {
         LocalDate dataAtual = LocalDate.now();
         LocalTime horaAtual = LocalTime.now();
 
-        String dataEntrada = dataAtual.format(FORMATADOR_DATA);
-        String horaEntrada = horaAtual.format(FORMATADOR_HORA);
+        String dataEntrada = dataAtual.format(formatarData);
+        String horaEntrada = horaAtual.format(formatarHora);
 
         try {
             Files.writeString(
-                    ARQUIVO_ENTRADA,
-                    cliente.nome + SEPARADOR +
-                            cliente.carro + SEPARADOR +
-                            cliente.placa + SEPARADOR +
-                            dataEntrada + SEPARADOR +
+                    arquivoEntrada,
+                    cliente.nome + separador +
+                            cliente.carro + separador +
+                            cliente.placa + separador +
+                            dataEntrada + separador +
                             horaEntrada + "\n",
                     StandardOpenOption.CREATE,
                     StandardOpenOption.APPEND
@@ -55,21 +55,21 @@ public class ClienteRepository {
         List<DadosDoCliente> clientes = new ArrayList<>();
 
         try {
-            List<String> linhas = Files.readAllLines(ARQUIVO_ENTRADA);
+            List<String> linhas = Files.readAllLines(arquivoEntrada);
 
             for (int i = 1; i < linhas.size(); i++) { // pula cabeçalho
                 String linha = linhas.get(i).trim();
                 if (linha.isEmpty()) continue;
 
-                String[] dados = linha.split(SEPARADOR);
+                String[] dados = linha.split(separador);
                 if (dados.length < 5) continue;
 
                 String nome = dados[0].trim();
                 String carro = dados[1].trim();
                 String placa = dados[2].trim();
 
-                LocalDate data = LocalDate.parse(dados[3].trim(), FORMATADOR_DATA);
-                LocalTime hora = LocalTime.parse(dados[4].trim(), FORMATADOR_HORA);
+                LocalDate data = LocalDate.parse(dados[3].trim(), formatarData);
+                LocalTime hora = LocalTime.parse(dados[4].trim(), formatarHora);
                 LocalDateTime dataEntrada = LocalDateTime.of(data, hora);
 
                 DadosDoCliente cliente = new DadosDoCliente(
@@ -111,7 +111,7 @@ public class ClienteRepository {
             String linha;
 
             while ((linha = br.readLine()) != null) {
-                String[] colunas = linha.split(SEPARADOR);
+                String[] colunas = linha.split(separador);
 
                 if (colunas.length > 2 &&
                         colunas[2].trim().equalsIgnoreCase(placaVeiculo.trim())) {

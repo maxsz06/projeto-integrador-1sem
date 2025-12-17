@@ -4,52 +4,56 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 public class SaidaRepository {
+
+    private static final Path arquivo_saida = Paths.get("Historico_saida.csv");
+
+    private static final DateTimeFormatter formatador =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public static void gravarSaida(
             String nome,
             String carro,
             String placa,
             LocalDateTime dataEntrada
-
     ) {
 
-        Path arquivo = Paths.get("Historico_saida.csv");
+        // 1️⃣ Momento real da saída
+        LocalDateTime dataSaida = LocalDateTime.now();
 
-        LocalDate dataAtual = LocalDate.now();
-        LocalTime horaAtual = LocalTime.now();
-        String dataSaida = dataAtual.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        String horaSaida = horaAtual.format(DateTimeFormatter.ofPattern("HH:mm"));
+        // 2️⃣ Cálculos
+        String tempoTotal = CalculoTempo.formatarDuracao(dataEntrada, dataSaida);
+        double valorTotal = CalculoTempo.calcularCustoTotal(dataEntrada, dataSaida);
 
+        // 3️⃣ Montar linha do CSV
         String linha =
                 nome + ";" +
                         carro + ";" +
                         placa + ";" +
-                        dataSaida + ";" +
-                        horaSaida + ";" +
+                        dataEntrada.format(formatador) + ";" +
+                        dataSaida.format(formatador) + ";" +
+                        tempoTotal + ";" +
+                        String.format("R$ %.2f", valorTotal).replace(".", ",") +
                         "\n";
 
         try {
+            // 4️⃣ Gravar saída
             Files.writeString(
-                    arquivo,
+                    arquivo_saida,
                     linha,
                     StandardOpenOption.CREATE,
                     StandardOpenOption.APPEND
             );
+
+            // 5️⃣ Remover da entrada
+            ClienteRepository repo = new ClienteRepository();
+            repo.excluirRegistroPorPlaca(placa);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-    }
-    private static final DateTimeFormatter FORMATADOR_DATETIME =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-    public static String formatarLocalDateTimeParaCSV(LocalDateTime dateTime) {
-        return dateTime.format(FORMATADOR_DATETIME);
     }
 }

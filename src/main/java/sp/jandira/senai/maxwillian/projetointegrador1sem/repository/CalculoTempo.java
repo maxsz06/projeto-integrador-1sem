@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
 
 public class CalculoTempo {
 
-    private static final double TARIFA_PRIMEIRA_HORA = 10.00;
-    private static final double TARIFA_HORA_SUBSEQUENTE = 5.00;
-    private static final int REGRA_ARREDONDAMENTO_MINUTOS = 5;
+    private static final double primeiraHora = 10.00;
+    private static final double horaSubsequente = 5.00;
+    private static final int arredondamento = 5;
 
     public static double calcularCustoTotal(
             LocalDateTime entrada,
@@ -19,10 +19,10 @@ public class CalculoTempo {
 
         // Até 1 hora
         if (totalMinutos <= 60) {
-            return TARIFA_PRIMEIRA_HORA;
+            return primeiraHora;
         }
 
-        double custoTotal = TARIFA_PRIMEIRA_HORA;
+        double custoTotal = primeiraHora;
         long minutosExcedentes = totalMinutos - 60;
 
         long horasCompletas = minutosExcedentes / 60;
@@ -30,11 +30,11 @@ public class CalculoTempo {
 
         long horasPagas = horasCompletas;
 
-        if (minutosResiduais >= REGRA_ARREDONDAMENTO_MINUTOS) {
+        if (minutosResiduais >= arredondamento) {
             horasPagas++;
         }
 
-        custoTotal += horasPagas * TARIFA_HORA_SUBSEQUENTE;
+        custoTotal += horasPagas * horaSubsequente;
         return custoTotal;
     }
 

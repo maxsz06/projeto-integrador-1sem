@@ -230,7 +230,7 @@ public class TelaPrincipal extends Application {
     //Configurando funções dos botões
     public void fechar(){
         Alert alertaFechar = new Alert(
-                Alert.AlertType.CONFIRMATION, "Tem certeza que deseja sair?",
+                Alert.AlertType.CONFIRMATION, "Tem certeza que deseja sair? ",
                 ButtonType.YES,
                 ButtonType.NO
         );
