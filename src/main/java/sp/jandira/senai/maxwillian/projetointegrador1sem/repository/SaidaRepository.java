@@ -9,8 +9,10 @@ import java.time.format.DateTimeFormatter;
 
 public class SaidaRepository {
 
+    // Caminho do arquivo onde será salvo o histórico de saída
     private static final Path arquivo_saida = Paths.get("Historico_saida.csv");
 
+    // Formato padrão usado para salvar data e hora no CSV
     private static final DateTimeFormatter formatador =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -21,14 +23,16 @@ public class SaidaRepository {
             LocalDateTime dataEntrada
     ) {
 
-        // 1️⃣ Momento real da saída
+        // Captura o momento exato em que o veículo está saindo
         LocalDateTime dataSaida = LocalDateTime.now();
 
-        // 2️⃣ Cálculos
+        // Calcula o tempo total que o veículo ficou estacionado
         String tempoTotal = CalculoTempo.formatarDuracao(dataEntrada, dataSaida);
+
+        // Calcula o valor total a ser pago com base no tempo
         double valorTotal = CalculoTempo.calcularCustoTotal(dataEntrada, dataSaida);
 
-        // 3️⃣ Montar linha do CSV
+        // Monta a linha que será salva no CSV de saída
         String linha =
                 nome + ";" +
                         carro + ";" +
@@ -40,7 +44,8 @@ public class SaidaRepository {
                         "\n";
 
         try {
-            // 4️⃣ Gravar saída
+
+            // Grava a linha no arquivo Historico_saida.csv
             Files.writeString(
                     arquivo_saida,
                     linha,
@@ -48,11 +53,12 @@ public class SaidaRepository {
                     StandardOpenOption.APPEND
             );
 
-            // 5️⃣ Remover da entrada
+            // Após salvar a saída, remove o veículo do histórico de entrada
             ClienteRepository repo = new ClienteRepository();
             repo.excluirRegistroPorPlaca(placa);
 
         } catch (Exception e) {
+            // Exibe qualquer erro que ocorra durante a gravação
             e.printStackTrace();
         }
     }

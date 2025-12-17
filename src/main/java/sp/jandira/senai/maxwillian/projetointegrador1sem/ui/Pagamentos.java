@@ -23,18 +23,23 @@ import sp.jandira.senai.maxwillian.projetointegrador1sem.repository.LeituraDaEnt
 
 public class Pagamentos extends VBox {
 
+    // Label que mostra o valor final calculado
     private Label labelValorTotal = new Label("R$ 0,00");
+
+    // Lê a última entrada registrada no arquivo CSV
     DadosDoCliente cliente = LeituraDaEntradaCsv.lerUltimaEntrada();
 
+    // Data e hora de entrada do cliente
     LocalDateTime dataEntrada = cliente.dataEntrada;
+
+    // Momento atual (saída)
     LocalDateTime dataSaida = LocalDateTime.now();
 
+    // Cálculo inicial do valor do estacionamento
     double valor = CalculoTempo.calcularCustoTotal(
             dataEntrada,
             dataSaida
     );
-
-
 
     public Pagamentos(){
         TeladePagamento();
@@ -42,41 +47,41 @@ public class Pagamentos extends VBox {
 
     public void TeladePagamento() {
 
-
-        // Definir o tamanho da tela, cor e titulo
+        // Define a cor de fundo da tela
         this.setStyle("-fx-background-color: #F0D49B;");
 
-        // Titulo do stage
+        // Área do título da tela
         VBox headerTitulo = new VBox();
         Label titulo = new Label("Valor à ser pago");
         titulo.setStyle("-fx-text-fill: black;-fx-font-size: 32; -fx-font-weight: Bold;");
         headerTitulo.getChildren().add(titulo);
         VBox.setMargin(headerTitulo, new Insets(50, 0, 0, 50));
 
-        // Label Data e o horário
+        // Texto fixo indicando data e hora da saída
         Label dataHorarioTitulo = new Label("Data e horário de saida: ");
         dataHorarioTitulo.setStyle("-fx-text-fill: black;-fx-font-size: 25; ");
 
-        // Horário agora formatado
+        // Captura o horário atual e formata para exibição
         LocalDateTime dataSaida = LocalDateTime.now();
         DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String dataHorarioValor = dataSaida.format(formatador);
 
+        // Atualiza o valor exibido no label
         labelValorTotal.setText(formatarMoeda(valor));
 
+        // Calcula o tempo total que o carro ficou estacionado
         String tempo = CalculoTempo.formatarDuracao(dataEntrada, dataSaida);
         System.out.println("Tempo total: " + tempo);
 
-
-        // String transformada em label da data e horário
+        // Label que mostra a data e hora formatadas
         Label dataHorarioValorLabel = new Label(dataHorarioValor);
         dataHorarioValorLabel.setStyle("-fx-text-fill: black;-fx-font-size: 25;");
 
+        // Texto fixo do valor do estacionamento
         Label valorDoEstacionamentoTitulo = new Label("Valor do estacionamento: ");
         valorDoEstacionamentoTitulo.setStyle("-fx-text-fill: black;-fx-font-size: 25;");
 
-//        valorDoEstacionamentoTextField.setPromptText("R$ 0,00");
-
+        // Verifica se existe um cliente válido antes de calcular
         if (cliente == null || cliente.dataEntrada == null) {
             labelValorTotal.setText("Nenhuma entrada registrada");
         } else {
@@ -91,7 +96,7 @@ public class Pagamentos extends VBox {
             labelValorTotal.setText(formatarMoeda(valor));
         }
 
-        // GridPane data e horário, valor do estacionamento
+        // Grid responsável por organizar data/hora e valor em linhas
         GridPane grid = new GridPane();
         grid.setHgap(15);
         grid.setVgap(15);
@@ -103,33 +108,35 @@ public class Pagamentos extends VBox {
         grid.add(valorDoEstacionamentoTitulo, 0, 1);
         grid.add(labelValorTotal, 1, 1);
 
-
         VBox.setVgrow(grid, javafx.scene.layout.Priority.ALWAYS);
 
-        // Botões de sair e entrada
+        // Botão de confirmação do pagamento
         Button btnDeEntrada = new Button("Confirmar");
         btnDeEntrada.setPrefWidth(200);
         btnDeEntrada.setPrefHeight(100);
         btnDeEntrada.setStyle("-fx-background-color: #93E681; -fx-font-size: 16px; -fx-background-radius: 12; -fx-font-weight: Bold;");
 
-        DropShadow shadow = new DropShadow();    //Adicionar uma sombra por traz do objeto ao passar o mouse
-        shadow.setRadius(8);                     //Tamanho da sombra adicionada
+        // Sombra usada para efeito visual ao passar o mouse
+        DropShadow shadow = new DropShadow();
+        shadow.setRadius(8);
 
-        btnDeEntrada.setOnMouseEntered(passarMouse -> btnDeEntrada.setEffect(shadow));       //Aplicar o efeito escuro quando passa o mouse
-        btnDeEntrada.setOnMouseExited(mouseJaPassou -> btnDeEntrada.setEffect(null));        //Retirar o efeito escuro quando o mouse já passou
+        btnDeEntrada.setOnMouseEntered(passarMouse -> btnDeEntrada.setEffect(shadow));
+        btnDeEntrada.setOnMouseExited(mouseJaPassou -> btnDeEntrada.setEffect(null));
 
+        // Animação de clique (reduz tamanho)
         btnDeEntrada.setOnMousePressed(clickIn -> {
-            btnDeEntrada.setScaleX(0.92);      //Reduzir o tamanho do botão ao clicar no mesmo
+            btnDeEntrada.setScaleX(0.92);
             btnDeEntrada.setScaleY(0.92);
         });
 
+        // Volta o botão ao tamanho normal
         btnDeEntrada.setOnMouseReleased(clickOut -> {
-            btnDeEntrada.setScaleX(1);        //O tamanho volta ao normal após o clickOut do mouse
+            btnDeEntrada.setScaleX(1);
             btnDeEntrada.setScaleY(1);
         });
 
+        // Ao confirmar, grava a saída no CSV
         btnDeEntrada.setOnAction(e -> {
-
             SaidaRepository.gravarSaida(
                     cliente.nome,
                     cliente.carro,
@@ -138,8 +145,7 @@ public class Pagamentos extends VBox {
             );
         });
 
-
-        // Criar botões
+        // Botão para voltar à tela principal
         Button btnDeSaida = new Button("Voltar");
         btnDeSaida.setPrefWidth(200);
         btnDeSaida.setPrefHeight(100);
@@ -148,53 +154,44 @@ public class Pagamentos extends VBox {
 
         DropShadow shadow2 = new DropShadow();
         shadow2.setRadius(8);
+
         btnDeSaida.setOnMouseEntered(passarMouse -> btnDeSaida.setEffect(shadow2));
         btnDeSaida.setOnMouseExited(mouseJaPassou -> btnDeSaida.setEffect(null));
+
         btnDeSaida.setOnMousePressed(clickIn -> {
             btnDeSaida.setScaleX(0.92);
             btnDeSaida.setScaleY(0.92);
         });
+
         btnDeSaida.setOnMouseReleased(clickOut -> {
             btnDeSaida.setScaleX(1);
             btnDeSaida.setScaleY(1);
         });
 
+        // Retorna para a tela principal reutilizando o mesmo Stage
         btnDeSaida.setOnAction(e -> {
-
             try {
-                // Criar nova cena da TelaPrincipal
                 TelaPrincipal telaPrincipal = new TelaPrincipal();
-
                 Stage stageAtual = (Stage) btnDeSaida.getScene().getWindow();
-
-                // Chamar o start() da tela principal novamente no mesmo Stage
                 telaPrincipal.start(stageAtual);
-
-            }
-            //Informar se irá ocorrer algum durante a execução do código dentro do try
-            catch (Exception ex) {       //Guardar o erro dentro da variável ex
-                ex.printStackTrace();    //Imprimir o erro no console
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         });
 
-
+        // Caixa que organiza os botões lado a lado
         HBox boxBotoes = new HBox(100);
         boxBotoes.setAlignment(Pos.BOTTOM_CENTER);
         boxBotoes.getChildren().addAll(btnDeEntrada, btnDeSaida);
         VBox.setMargin(boxBotoes, new Insets(30, 0, 50, 0));
 
-        // Filhos do stage
+        // Adiciona todos os componentes na tela
         this.getChildren().addAll(headerTitulo, grid, boxBotoes);
-
     }
 
-
-
     private String formatarMoeda(double valor) {
-        // Formato brasileiro para exibir R$
+        // Formata o valor para o padrão brasileiro (R$)
         NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
         return nf.format(valor);
     }
 }
-
-
