@@ -1,14 +1,12 @@
 package sp.jandira.senai.maxwillian.projetointegrador1sem.ui;
 
-import sp.jandira.senai.maxwillian.projetointegrador1sem.repository.CalculoTempo;
-import sp.jandira.senai.maxwillian.projetointegrador1sem.ui.TelaPrincipal;
 import sp.jandira.senai.maxwillian.projetointegrador1sem.model.DadosDoCliente;
+import sp.jandira.senai.maxwillian.projetointegrador1sem.repository.CalculoTempo;
 import sp.jandira.senai.maxwillian.projetointegrador1sem.repository.SaidaRepository;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -23,11 +21,21 @@ import java.util.Locale;
 
 import sp.jandira.senai.maxwillian.projetointegrador1sem.repository.LeituraDaEntradaCsv;
 
-import static sp.jandira.senai.maxwillian.projetointegrador1sem.ui.RegistrarEntrada.dataEntrada;
-
 public class Pagamentos extends VBox {
+
     private Label labelValorTotal = new Label("R$ 0,00");
     DadosDoCliente cliente = LeituraDaEntradaCsv.lerUltimaEntrada();
+
+    LocalDateTime dataEntrada = cliente.dataEntrada;
+    LocalDateTime dataSaida = LocalDateTime.now();
+
+    double valor = CalculoTempo.calcularCustoTotal(
+            dataEntrada,
+            dataSaida
+    );
+
+
+
     public Pagamentos(){
         TeladePagamento();
     }
@@ -54,6 +62,12 @@ public class Pagamentos extends VBox {
         DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String dataHorarioValor = dataSaida.format(formatador);
 
+        labelValorTotal.setText(formatarMoeda(valor));
+
+        String tempo = CalculoTempo.formatarDuracao(dataEntrada, dataSaida);
+        System.out.println("Tempo total: " + tempo);
+
+
         // String transformada em label da data e horário
         Label dataHorarioValorLabel = new Label(dataHorarioValor);
         dataHorarioValorLabel.setStyle("-fx-text-fill: black;-fx-font-size: 25;");
@@ -63,15 +77,19 @@ public class Pagamentos extends VBox {
 
 //        valorDoEstacionamentoTextField.setPromptText("R$ 0,00");
 
-        System.out.println("Entrada: " + dataEntrada);
-        System.out.println("Saída: " + dataSaida);
-
-        if (dataEntrada == null) {
+        if (cliente == null || cliente.dataEntrada == null) {
             labelValorTotal.setText("Nenhuma entrada registrada");
         } else {
-            // aqui depois você pode calcular normalmente
-        }
+            LocalDateTime dataEntrada = cliente.dataEntrada;
+            dataSaida = LocalDateTime.now();
 
+            double valor = CalculoTempo.calcularCustoTotal(
+                    dataEntrada,
+                    dataSaida
+            );
+
+            labelValorTotal.setText(formatarMoeda(valor));
+        }
 
         // GridPane data e horário, valor do estacionamento
         GridPane grid = new GridPane();
@@ -116,8 +134,7 @@ public class Pagamentos extends VBox {
                     cliente.nome,
                     cliente.carro,
                     cliente.placa,
-                    dataEntrada,
-                    dataSaida
+                    cliente.dataEntrada
             );
         });
 
@@ -171,33 +188,13 @@ public class Pagamentos extends VBox {
 
     }
 
+
+
     private String formatarMoeda(double valor) {
         // Formato brasileiro para exibir R$
         NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
         return nf.format(valor);
     }
-
-    public void exibirValorAPagar() {
-
-        // 1. Chamar a função de cálculo do custo
-        double valorBruto = Double.parseDouble(String.valueOf(CalculoTempo.calcularCustoTotal()));
-
-        // 2. Formatar o valor para R$
-        String valorFormatado = formatarMoeda(valorBruto);
-
-        // 3. Atualizar o texto do Label
-        labelValorTotal.setText(valorFormatado);
-
-        System.out.println("Valor total a pagar: " + valorFormatado);
-    }
-
-    public void chamarVolta() {
-
-        exibirValorAPagar();
-    }
-
-    public static LocalDateTime dataSaida;
-
 }
 
 

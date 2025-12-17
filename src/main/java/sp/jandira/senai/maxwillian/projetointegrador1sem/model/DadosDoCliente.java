@@ -8,25 +8,37 @@ public class DadosDoCliente {
     public String placa;
     public String carro;
     public String nome;
-    public String dataEntrada;
+    public LocalDateTime dataEntrada;
     public String horaEntrada;
 
+    // Construtor vazio (OBRIGATÓRIO)
     public DadosDoCliente() {
-        // Construtor vazio necessário para 'new DadosDoCliente()'
     }
 
-    // Necessário para a função de leitura do CSV
-    public DadosDoCliente(String nome, String carro, String placa, String dataEntrada, String horaEntrada) {
+    /*
+     * Construtor usado pelo Repository
+     * O Repository já deve mandar o LocalDateTime pronto
+     */
+    public DadosDoCliente(
+            String nome,
+            String carro,
+            String placa,
+            LocalDateTime dataEntrada
+    ) {
         this.nome = nome;
         this.carro = carro;
         this.placa = placa;
         this.dataEntrada = dataEntrada;
-        this.horaEntrada = horaEntrada;
+        this.horaEntrada = dataEntrada.toLocalTime().format(
+                DateTimeFormatter.ofPattern("HH:mm")
+        );
     }
 
-    // O método toString() (crucial para o ListView)
     @Override
     public String toString() {
-        return nome + " | " + carro + " | Placa: " + placa + " | Entrada: " + dataEntrada + " às " + horaEntrada;
+        return nome + " | " +
+                carro + " | Placa: " +
+                placa + " | Entrada: " +
+                dataEntrada.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 }

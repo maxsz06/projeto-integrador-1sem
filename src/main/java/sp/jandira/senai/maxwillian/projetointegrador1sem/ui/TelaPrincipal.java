@@ -166,7 +166,8 @@ public class TelaPrincipal extends Application {
             System.out.println("Nova tela para confirmar o pagamento e a saída");
 
             //Chamar a classe com o algoritmo da lógica e configuração da tela
-            Pagamentos telaDePagamento = new Pagamentos();    //Criando o objeto para chamar a classe Pagamentos
+            Pagamentos telaDePagamento;    //Criando o objeto para chamar a classe Pagamentos
+            telaDePagamento = new Pagamentos();
             Scene novaCenaEntrada = new Scene(telaDePagamento, 1440, 1024);    //Configurando a nova cena com os parâmetros da classe pagamentos
             Stage stageExistente = (Stage) registrarSaida.getScene().getWindow();    //Utilizando o palco existente dando como parâmetros ao clicar no registrar
             //saída para pegar a cena e a janela

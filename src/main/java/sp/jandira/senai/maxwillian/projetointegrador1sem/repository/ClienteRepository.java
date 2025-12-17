@@ -1,17 +1,11 @@
 package sp.jandira.senai.maxwillian.projetointegrador1sem.repository;
 
-
-import sp.jandira.senai.maxwillian.projetointegrador1sem.ui.RegistrarEntrada;
-
-import javafx.scene.control.TextField;
 import sp.jandira.senai.maxwillian.projetointegrador1sem.model.DadosDoCliente;
-
+import sp.jandira.senai.maxwillian.projetointegrador1sem.ui.RegistrarEntrada;
+import javafx.scene.control.TextField;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -19,150 +13,130 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 public class ClienteRepository {
 
+    private static final Path ARQUIVO_ENTRADA = Paths.get("Historico_entrada.csv");
+    private static final String SEPARADOR = ";";
 
+    private static final DateTimeFormatter FORMATADOR_DATA =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    private static final DateTimeFormatter FORMATADOR_HORA =
+            DateTimeFormatter.ofPattern("HH:mm");
 
+    // ================== GRAVAR CLIENTE ==================
     public void gravarCliente(DadosDoCliente cliente) {
 
         LocalDate dataAtual = LocalDate.now();
         LocalTime horaAtual = LocalTime.now();
-        String dataEntrada = dataAtual.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        String horaEntrada = horaAtual.format(DateTimeFormatter.ofPattern("HH:mm"));
 
-        Path arquivoEntrada= Paths.get("D:\\dadosDosClientes\\historicoDeEntrada.csv");
-        Path arquivoSaida= Paths.get("D:\\dadosDosClientes\\historicoDeSaida.csv");
-        try{
-            Files.writeString(arquivoEntrada, cliente.nome+ ";" + cliente.carro + ";" + cliente.placa + ";" + dataEntrada + ";" + horaEntrada + "\n", StandardOpenOption.APPEND);
-            Files.writeString(arquivoSaida, cliente.nome+ ";" + cliente.carro + ";" + cliente.placa + ";" + dataEntrada + ";" + horaEntrada +  "\n", StandardOpenOption.APPEND);
-        }catch (IOException e){
-            System.out.println("Erro ao criar o arquivo");
-            System.out.println(e.getMessage());
+        String dataEntrada = dataAtual.format(FORMATADOR_DATA);
+        String horaEntrada = horaAtual.format(FORMATADOR_HORA);
+
+        try {
+            Files.writeString(
+                    ARQUIVO_ENTRADA,
+                    cliente.nome + SEPARADOR +
+                            cliente.carro + SEPARADOR +
+                            cliente.placa + SEPARADOR +
+                            dataEntrada + SEPARADOR +
+                            horaEntrada + "\n",
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.APPEND
+            );
+        } catch (IOException e) {
+            System.out.println("Erro ao gravar cliente.");
+            e.printStackTrace();
         }
     }
 
-    private static final Path arquivo = Paths.get("D:\\dadosDosClientes\\historicoDeEntrada.csv");
-    private static final String separador = ";"; // O separador do seu CSV
+    // ================== LISTAR TODOS ==================
     public static List<DadosDoCliente> listarTodos() {
         List<DadosDoCliente> clientes = new ArrayList<>();
 
         try {
-            // Ler todas as linhas do arquivo
-            List<String> todasAsLinhas = Files.readAllLines(arquivo);
+            List<String> linhas = Files.readAllLines(ARQUIVO_ENTRADA);
 
-            // Pular a primeira linha (cabeçalho)
-            for (int i = 1; i < todasAsLinhas.size(); i++) {
-                String linha = todasAsLinhas.get(i);
+            for (int i = 1; i < linhas.size(); i++) { // pula cabeçalho
+                String linha = linhas.get(i).trim();
+                if (linha.isEmpty()) continue;
 
-                // Ignorar linhas vazias
-                if (linha.trim().isEmpty()) {
-                    continue;
-                }
+                String[] dados = linha.split(SEPARADOR);
+                if (dados.length < 5) continue;
 
-                // Dividir a linha usando o separador
-                String[] dados = linha.split(separador);
+                String nome = dados[0].trim();
+                String carro = dados[1].trim();
+                String placa = dados[2].trim();
 
-                // Deve haver 5 campos (Nome, Modelo, Placa, Data_In, Hora_In)
-                if (dados.length >= 5) {
-                    // Remover espaços em branco ou o ';' extra no final
-                    String nome = dados[0].trim();
-                    String carro = dados[1].trim();
-                    String placa = dados[2].trim();
-                    String dataEntrada = dados[3].trim();
-                    String horaEntrada = dados[4].trim().replace(";", ""); // Remove o ';' do final
+                LocalDate data = LocalDate.parse(dados[3].trim(), FORMATADOR_DATA);
+                LocalTime hora = LocalTime.parse(dados[4].trim(), FORMATADOR_HORA);
+                LocalDateTime dataEntrada = LocalDateTime.of(data, hora);
 
-                    DadosDoCliente cliente = new DadosDoCliente(
-                            nome,
-                            carro,
-                            placa,
-                            dataEntrada,
-                            horaEntrada
-                    );
-                    clientes.add(cliente);
-                }
+                DadosDoCliente cliente = new DadosDoCliente(
+                        nome,
+                        carro,
+                        placa,
+                        dataEntrada
+                );
+
+                clientes.add(cliente);
             }
+
         } catch (IOException e) {
-            System.out.println("Erro ao ler o arquivo CSV.");
+            System.out.println("Erro ao ler Historico_entrada.csv");
             e.printStackTrace();
         }
 
         return clientes;
     }
 
-    public void receberDados (TextField nomeUser, TextField placaCliente, TextField veiculoCliente) {
+    // ================== RECEBER DADOS ==================
+    public void receberDados(TextField nomeUser, TextField placaCliente, TextField veiculoCliente) {
 
-        RegistrarEntrada registrarEntrada =  new RegistrarEntrada();
         DadosDoCliente cliente = new DadosDoCliente();
-
         cliente.nome = nomeUser.getText();
         cliente.placa = placaCliente.getText();
         cliente.carro = veiculoCliente.getText();
 
-
         gravarCliente(cliente);
     }
 
+    // ================== EXCLUIR POR PLACA ==================
     public boolean excluirRegistroPorPlaca(String placaVeiculo) {
 
         List<String> linhasParaManter = new ArrayList<>();
         boolean registroEncontrado = false;
 
-        try (BufferedReader br = new BufferedReader(new FileReader("historicoDeEntrada.csv"))) {
-
+        try (BufferedReader br = new BufferedReader(new FileReader("Historico_entrada.csv"))) {
             String linha;
 
-            // 1. Ler o arquivo, linha por linha
             while ((linha = br.readLine()) != null) {
+                String[] colunas = linha.split(SEPARADOR);
 
-                // Supondo que a PLACA é o PRIMEIRO campo (índice 0)
-                String[] colunas = linha.split(";"); // Use o delimitador correto do seu CSV!
-
-                if (colunas.length > 0) {
-                    String placaDoRegistro = colunas[0].trim();
-
-                    // 2. Comparar a placa e decidir se a linha deve ser mantida
-                    if (placaDoRegistro.equalsIgnoreCase(placaVeiculo.trim())) {
-                        // Esta é a linha a ser excluída, então NÃO a adicionamos à lista
-                        registroEncontrado = true;
-                    } else {
-                        // Linha a ser mantida
-                        linhasParaManter.add(linha);
-                    }
+                if (colunas.length > 2 &&
+                        colunas[2].trim().equalsIgnoreCase(placaVeiculo.trim())) {
+                    registroEncontrado = true;
                 } else {
-                    // Manter linhas vazias ou mal formatadas, se necessário.
                     linhasParaManter.add(linha);
                 }
             }
 
         } catch (IOException e) {
-            System.err.println("Erro ao ler o arquivo CSV: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
 
-        // Se o registro não foi encontrado, não há o que excluir
-        if (!registroEncontrado) {
-            System.out.println("Aviso: Registro com a placa " + placaVeiculo + " não encontrado.");
-            // Retorna true se você considerar que a "exclusão" foi bem-sucedida porque o item não existe mais
-            return true;
-        }
+        if (!registroEncontrado) return true;
 
-        // 3. Sobrescrever o arquivo original
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("historicoDeEntrada.csv"))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("Historico_entrada.csv"))) {
             for (String linha : linhasParaManter) {
                 bw.write(linha);
-                bw.newLine(); // Adiciona uma nova linha após cada registro
+                bw.newLine();
             }
-            return true; // Exclusão bem-sucedida
-
+            return true;
         } catch (IOException e) {
-            System.err.println("Erro ao escrever (sobrescrever) o arquivo CSV: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
 }
-
-
-

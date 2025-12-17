@@ -1,13 +1,12 @@
 package sp.jandira.senai.maxwillian.projetointegrador1sem.repository;
 
-import javafx.scene.control.TextField;
-
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 public class SaidaRepository {
@@ -16,22 +15,23 @@ public class SaidaRepository {
             String nome,
             String carro,
             String placa,
-            LocalDateTime dataEntrada,
-            LocalDateTime dataSaida
+            LocalDateTime dataEntrada
 
     ) {
 
-        Path arquivo = Paths.get("historicoDeSaida.csv");
+        Path arquivo = Paths.get("Historico_saida.csv");
 
-        DateTimeFormatter formatador =
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDate dataAtual = LocalDate.now();
+        LocalTime horaAtual = LocalTime.now();
+        String dataSaida = dataAtual.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        String horaSaida = horaAtual.format(DateTimeFormatter.ofPattern("HH:mm"));
 
         String linha =
                 nome + ";" +
                         carro + ";" +
                         placa + ";" +
-                        dataEntrada.format(formatador) + ";" +
-                        dataSaida.format(formatador) + ";" +
+                        dataSaida + ";" +
+                        horaSaida + ";" +
                         "\n";
 
         try {
