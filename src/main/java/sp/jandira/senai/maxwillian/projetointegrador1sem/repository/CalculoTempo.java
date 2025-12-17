@@ -15,7 +15,7 @@ public class CalculoTempo {
     ) {
 
         Duration duracao = Duration.between(entrada, saida);
-        long totalMinutos = duracao.toMinutes();
+        long totalMinutos = duracao.abs().toMinutes();
 
         // Até 1 hora
         if (totalMinutos <= 60) {
